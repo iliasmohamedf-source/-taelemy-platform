@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معاينة منصة الحساب الذهني</title>
+    <style>
+        :root {
+            --main-color: #3498db;
+            --secondary-color: #2c3e50;
+            --bg-color: #f0f4f8;
+            --success: #27ae60;
+            --error: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .app-container {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /*Header*/
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 { font-size: 22px; color: var(--secondary-color); margin: 0; }
+
+        /*Pages Control*/
+        .page { display: none; animation: slideIn 0.3s ease-out; }
+        .page.active { display: block; }
+
+        @keyframes slideIn {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Auth Tabs */
+        .auth-tabs { display: flex; margin-bottom: 20px; background: #eee; border-radius: 10px; padding: 5px; }
+        .auth-tabs button {
+            flex: 1; border: none; padding: 10px; cursor: pointer; border-radius: 8px;
+            background: none; font-weight: bold; color: #666; transition: 0.3s;
+        }
+        .auth-tabs button.active { background: white; color: var(--main-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* Inputs & Buttons */
+        input, select {
+            width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee;
+            border-radius: 12px; box-sizing: border-box; font-size: 16px; outline: none;
+        }
+        input:focus { border-color: var(--main-color); }
+
+        .btn {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            background: var(--main-color); color: white; font-size: 18px;
+            font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn:hover { background: #2980b9; transform: translateY(-2px); }
+
+        /* Flash Screen */
+        #display-screen {
+            font-size: 100px; font-weight: bold; height: 180px;
+            display: flex; justify-content: center; align-items: center;
+            background: #f8f9fa; border-radius: 20px; margin: 20px 0;
+            border: 3px dashed #ddd; color: var(--secondary-color);
+        }
+
+        /* Statistics Mockup */
+        .stat-card {
+            background: #eef2f7; padding: 15px; border-radius: 12px;
+            margin-top: 20px; text-align: right; font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div id="page-auth" class="page active">
+        <div class="header"><h1>منصة الحساب الذهني</h1></div>
+        <div class="auth-tabs">
+            <button id="t-login" class="active" onclick="switchAuth('login')">دخول</button>
+            <button id="t-signup" onclick="switchAuth('signup')">طالب جديد</button>
+        </div>
+        
+        <div id="auth-form">
+            <input type="email" id="email" placeholder="البريد الإلكتروني">
+            <input type="password" id="pass" placeholder="كلمة المرور">
+            <button class="btn" onclick="mockAction('دخول...')">تسجيل الدخول</button>
+        </div>
+        <p style="font-size: 12px; color: #888; margin-top: 15px; text-align: center;">
+            * هذه معاينة للتصميم، اضغط دخول للتجربة
+        </p>
+    </div>
+
+    <div id="page-game" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="user-name" style="font-weight: bold;">مرحباً، يا بطل! 👋</span>
+            <button onclick="logout()" style="background:none; border:none; color:red; cursor:pointer;">خروج</button>
+        </div>
+
+        <div id="display-screen">جاهز؟</div>
+
+        <div id="game-controls">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px;">الأرقام</label>
+                    <input type="number" id="count" value="5">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px;">السرعة (ث)</label>
+                    <input type="number" id="speed" value="1" step="0.1">
+                </div>
+            </div>
+            <label style="font-size: 12px;">المستوى</label>
+            <select id="digits">
+                <option value="1">آحاد (1-9)</option>
+                <option value="2">عشرات (10-99)</option>
+                <option value="3">مئات (100-999)</option>
+            </select>
+            <button class="btn" onclick="startEngine()">ابدأ الاختبار</button>
+        </div>
+
+        <div id="answer-zone" style="display: none;">
+            <input type="number" id="student-answer" placeholder="المجموع؟">
+            <button class="btn" style="background: var(--success);" onclick="checkAnzan()">إرسال الإجابة</button>
+        </div>
+
+        <div class="stat-card">
+            <strong>تحليل المستوى (قريباً):</strong><br>
+            نسبة الدقة: 85% | السرعة الموصى بها: 0.8ث
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // نظام التنقل للمعاينة
+    function switchAuth(type) {
+        document.getElementById('t-login').classList.toggle('active', type === 'login');
+        document.getElementById('t-signup').classList.toggle('active', type === 'signup');
+    }
+
+    function mockAction(msg) {
+        document.getElementById('page-auth').classList.remove('active');
+        document.getElementById('page-game').classList.add('active');
+    }
+
+    function logout() {
+        document.getElementById('page-game').classList.remove('active');
+        document.getElementById('page-auth').classList.add('active');
+    }
+
+    // المحرك البرمجي
+    let finalSum = 0;
+
+    function startEngine() {
+        const count = parseInt(document.getElementById('count').value);
+        const speed = parseFloat(document.getElementById('speed').value) * 1000;
+        const digits = parseInt(document.getElementById('digits').value);
+        const screen = document.getElementById('display-screen');
+        
+        document.getElementById('game-controls').style.display = 'none';
+        document.getElementById('answer-zone').style.display = 'none';
+        
+        let currentIter = 0;
+        finalSum = 0;
+        screen.style.color = 'var(--secondary-color)';
+
+        const timer = setInterval(() => {
+            if (currentIter < count) {
+                const min = Math.pow(10, digits - 1);
+                const max = Math.pow(10, digits) - 1;
+                const num = Math.floor(Math.random() * (max - min + 1)) + min;
+                
+                screen.innerText = num;
+                finalSum += num;
+                currentIter++;
+            } else {
+                clearInterval(timer);
+                screen.innerText = "؟";
+                document.getElementById('answer-zone').style.display = 'block';
+            }
+        }, speed);
+    }
+
+    function checkAnzan() {
+        const ans = document.getElementById('student-answer').value;
+        const screen = document.getElementById('display-screen');
+        
+        if (parseInt(ans) === finalSum) {
+            screen.innerText = "✅";
+            screen.style.color = "var(--success)";
+            alert("رائع! إجابة صحيحة");
+        } else {
+            screen.innerText = "❌";
+            screen.style.color = "var(--error)";
+            alert("خطأ! المجموع هو: " + finalSum);
+        }
+        
+        document.getElementById('game-controls').style.display = 'block';
+        document.getElementById('answer-zone').style.display = 'none';
+        document.getElementById('student-answer').value = "";
+    }
+</script>
+
+</body>
+</html># Auto detect text files and perform LF normalization
+* text=auto
